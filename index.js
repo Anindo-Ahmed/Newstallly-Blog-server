@@ -38,7 +38,11 @@ async function run() {
     const BlogsCollection = client.db("newstally").collection("Blogs");
     const wishlistCollection = client.db("newstally").collection("wishlist");
 
-    
+    // Get all blogs from DB
+    app.get('/blogs', async(req, res) => {
+        const result = await BlogsCollection.find().toArray();
+        res.send(result)
+    })
 
 
 
