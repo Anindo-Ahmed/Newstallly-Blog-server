@@ -35,12 +35,19 @@ async function run() {
   try {
     // await client.connect();
 
-    const BlogsCollection = client.db("newstally").collection("Blogs");
+    const blogsCollection = client.db("newstally").collection("Blogs");
     const wishlistCollection = client.db("newstally").collection("wishlist");
 
     // Get all blogs from DB
     app.get('/blogs', async(req, res) => {
-        const result = await BlogsCollection.find().toArray();
+        const result = await blogsCollection.find().toArray();
+        res.send(result)
+    })
+
+    // Save a blog in db
+    app.post('/blogs', async(req, res)=> {
+        const blogData = req.body;
+        const result = await blogsCollection.insertOne(blogData);
         res.send(result)
     })
 
