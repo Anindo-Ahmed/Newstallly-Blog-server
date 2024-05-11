@@ -63,6 +63,29 @@ async function run() {
         const result = await blogsCollection.updateOne(query, updatedDoc, options);
         res.send(result)
     })
+
+    // Get all blogs from DB
+    app.get('/wishlist-blog', async(req, res) => {
+        const result = await wishlistCollection.find().toArray();
+        res.send(result)
+    })
+
+    // Get all blogs from a specific user from DB though email
+    app.get('/blog/:email', async (req, res) => {
+        const email = req.params.email
+        const query = {'owner.email': email}
+        const result = await blogsCollection.find(query).toArray()
+        res.send(result)
+    })
+
+    // Get all wishlist from a specific user from DB though email
+    app.get('/wishlist-blog/:email', async (req, res) => {
+        const email = req.params.email
+        const query = {'user.email' : email}
+        const result = await wishlistCollection.find(query).toArray()
+        res.send(result)
+    })
+
     // save a blog in a wishlist collection
     app.post('/wishlist-blog', async (req, res)=>{
         const wishListData = req.body
@@ -71,16 +94,13 @@ async function run() {
         res.send(result)
     })
 
-    // Get all wishlist from a specific user from DB though email
-    app.get('/wishlist-blog/:email', async (req, res) => {
-        const email = req.params.email
-        const query = {email}
-        const result = await wishlistCollection.find(query).toArray()
+    // Delete a blog from wishlist
+    app.delete('/wishlist-blog/:id', async (req, res) => {
+        const id = req.params.id
+        const query = {_id: new ObjectId(id)}
+        const result  = await wishlistCollection.deleteOne(query)
         res.send(result)
     })
-
-
-
 
 
 
