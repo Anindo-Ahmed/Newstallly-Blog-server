@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -48,6 +48,19 @@ async function run() {
     app.post('/blogs', async(req, res)=> {
         const blogData = req.body;
         const result = await blogsCollection.insertOne(blogData);
+        res.send(result)
+    })
+
+    // Update a blog db
+    app.put('/blogs/:id', async (req, res) => {
+        const blogData = req.body;
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const options = { upsert: true }
+        const updatedDoc = {
+            $set: { ...blogData }
+        }
+        const result = await blogsCollection.updateOne(query, updatedDoc, options);
         res.send(result)
     })
 
