@@ -63,6 +63,21 @@ async function run() {
         const result = await blogsCollection.updateOne(query, updatedDoc, options);
         res.send(result)
     })
+    // save a blog in a wishlist collection
+    app.post('/wishlist-blog', async (req, res)=>{
+        const wishListData = req.body
+        console.log(wishListData)
+        const result = await wishlistCollection.insertOne(wishListData)
+        res.send(result)
+    })
+
+    // Get all wishlist from a specific user from DB though email
+    app.get('/wishlist-blog/:email', async (req, res) => {
+        const email = req.params.email
+        const query = {email}
+        const result = await wishlistCollection.find(query).toArray()
+        res.send(result)
+    })
 
 
 
