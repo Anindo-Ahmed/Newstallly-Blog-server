@@ -30,7 +30,7 @@ const verifyToken = (req, res, next) => {
                 if(error){
                     return res.status(401).send({message: 'unauthorised token'})
                 }
-                console.log(decoded);
+                // console.log(decoded);
                 req.user = decoded 
                 next();
             })
@@ -146,6 +146,17 @@ async function run() {
         res.send(result)
     })
 
+    // Get all blogs from DB by filter and search
+    app.get('/all-blogs', async(req, res) => {
+        const filter = req.query.filter
+        const search = req.query.search
+        let query = {
+            title: { $regex: search, $options: 'i' },
+        }
+        if(filter) query.category = filter
+        const result = await blogsCollection.find(query).toArray();
+        res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
