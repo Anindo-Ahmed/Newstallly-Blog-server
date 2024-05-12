@@ -19,8 +19,23 @@ app.use(
     })
 );
 app.use(express.json());
+app.use(cookieParser());
 
-
+// verify jwt middleware
+const verifyToken = (req, res, next) => {
+    const token = req.cookies?.token
+    if(!token) return res.status(401).send({message: 'unauthorised token'})
+        if(token){
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded)=> {
+                if(error){
+                    return res.status(401).send({message: 'unauthorised token'})
+                }
+                console.log(decoded);
+                req.user = decoded 
+                next();
+            })
+        }
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clustera.xilruvy.mongodb.net/?retryWrites=true&w=majority&appName=ClusterA`;
 
@@ -48,6 +63,17 @@ async function run() {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+        })
+        .send({success: true})
+    })
+
+    // Clear token during logout
+    app.get('/logout', (req, res) =>{
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            maxAge: 0,
         })
         .send({success: true})
     })
@@ -85,8 +111,12 @@ async function run() {
     })
 
     // Get all blogs from a specific user from DB though email
-    app.get('/blog/:email', async (req, res) => {
+    app.get('/blog/:email', verifyToken, async (req, res) => {
+        const tokenEmail = req.user.email
         const email = req.params.email
+        if(tokenEmail !== email){
+            return res.status(403).send({message: 'forbidden token'})
+        }
         const query = {'owner.email': email}
         const result = await blogsCollection.find(query).toArray()
         res.send(result)
