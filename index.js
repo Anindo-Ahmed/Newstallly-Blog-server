@@ -13,6 +13,8 @@ app.use(
         origin: [
             "http://localhost:5173",
             "http://localhost:5174",
+            "https://newstally-blogsites.web.app",
+            "https://newstally-blogsites.firebaseapp.com"
         ],
         credentials: true,
         optionsSuccessStatus: 200,
@@ -54,6 +56,7 @@ async function run() {
 
     const blogsCollection = client.db("newstally").collection("Blogs");
     const wishlistCollection = client.db("newstally").collection("wishlist");
+    const commentCollection = client.db("newstally").collection("comments");
 
     // Jwt generate
     app.post('/jwt', async(req, res)=>{
@@ -88,6 +91,13 @@ async function run() {
     app.post('/blogs', async(req, res)=> {
         const blogData = req.body;
         const result = await blogsCollection.insertOne(blogData);
+        res.send(result)
+    })
+
+    // Save a comment in db
+    app.post('/comments', async(req, res)=> {
+        const commentData = req.body;
+        const result = await commentCollection.insertOne(commentData);
         res.send(result)
     })
 
@@ -160,7 +170,7 @@ async function run() {
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
